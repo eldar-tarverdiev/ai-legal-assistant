@@ -1,0 +1,101 @@
+services:
+  # 1. Локальная LLM (основная модель для агентов)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: legal-ollama
+    ports:
+      - "11435:11434"  # Уникальный порт, чтобы не конфликтовать
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - legal-network
+    restart: unless-stopped
+
+  # 2. Redis — кратковременная память (буфер диалога)
+  redis:
+    image: redis:7-alpine
+    container_name: legal-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - legal-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  # 3. Qdrant — долговременная память (векторный поиск)
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: legal-qdrant
+    ports:
+      - "6333:6333"   # HTTP API
+      - "6334:6334"   # gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - legal-network
+    restart: unless-stopped
+
+  # 4. Наш API сервер
+  legal-api:
+    build: .
+    container_name: legal-api
+    ports:
+      - "8002:8000"  # Уникальный порт
+    volumes:
+      - ./data:/app/data
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - REDIS_URL=redis://redis:6379
+      - QDRANT_URL=http://qdrant:6333
+    depends_on:
+      - ollama
+      - redis
+      - qdrant
+    networks:
+      - legal-network
+    restart: unless-stopped
+
+  # 5. Prometheus — сбор метрик
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: legal-prometheus
+    ports:
+      - "9091:9090"  # Уникальный порт
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - legal-network
+    restart: unless-stopped
+
+  # 6. Grafana — визуализация
+  grafana:
+    image: grafana/grafana:latest
+    container_name: legal-grafana
+    ports:
+      - "3001:3000"  # Уникальный порт
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - legal-network
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
+  redis_data:
+  qdrant_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  legal-network:
+    driver: bridge

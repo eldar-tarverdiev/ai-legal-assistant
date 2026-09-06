@@ -1,0 +1,49 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Docker volumes
+ollama_data/
+redis_data/
+qdrant_data/
+prometheus_data/
+grafana_data/
+
+# Environment
+.env
+.env.local
+
+# Data files (не коммитим большие файлы)
+data/**/*.pdf
+data/**/*.docx
+data/**/*.xlsx
+!data/sample_*
+
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
