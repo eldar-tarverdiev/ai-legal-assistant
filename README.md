@@ -4,7 +4,7 @@
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.111-green?logo=fastapi)
-![LangGraph](https://shields.io)
+![LangGraph](https://img.shields.io/badge/LangChain-Multi--Agent-orange?logo=langchain)
 ![Qdrant](https://img.shields.io/badge/Qdrant-VectorDB-red?logo=qdrant)
 ![Docker](https://img.shields.io/badge/Docker-Compose-blue?logo=docker)
 ![Prometheus](https://img.shields.io/badge/Prometheus-Monitoring-orange?logo=prometheus)
